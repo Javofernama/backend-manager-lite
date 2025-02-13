@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  userId Int @id @default(autoincrement())
+  userEmail String
+  userPass String
+  userName String
+  userLastName String
+  userStatus Boolean @default(true)
+
+  Assign Assign[]
+}
+
+model Action {
+  actionId Int @id @default(autoincrement())
+  assignId Int
+  actionTitle String
+  actionDate DateTime @default(now())
+  actionDescription String?
+  actionType String
+  actionState Boolean
+  Assign Assign @relation(fields: [assignId], references: [assignId])
+}
+
+model Assign {
+  assignId Int @id @default(autoincrement())
+  userId Int
+  assignDate DateTime @default(now())
+
+  User User @relation(fields: [userId], references: [userId])
+  Action Action[]
+
+  Company Company? // Relación 1:1 con Company (sin atributos @relation)
+}
+
+model Company {
+  companyId Int @id @default(autoincrement())
+  assignId Int? @unique // Relación 1:1
+
+  companyName String
+  companyAddress String?
+  companyWebsite String?
+  companyIndustry String?
+  companyRevenue String?
+  companyPhone String?
+
+  Contact Contact[]
+  Assign Assign? @relation(fields: [assignId], references: [assignId]) // Definimos la relación aquí
+}
+
+model Contact {
+  contactId Int @id @default(autoincrement())
+  companyId Int
+  contactFirstName	String
+  contactLastName	String?
+  contactGender	String?
+  contactTitle	String?
+  contactPosition String?
+  contactCode	String?
+  contactEmail	String?
+  contactProfileUrl String?
+
+  Company Company @relation(fields: [companyId], references: [companyId])
+}
